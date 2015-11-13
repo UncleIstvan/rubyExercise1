@@ -32,7 +32,7 @@ class Main_menu
 
       when 5
 
-        task_table.show_completed
+        task_table.show_only('completed')
 
         wait
 
@@ -40,7 +40,7 @@ class Main_menu
 
       when 6
 
-        task_table.show_pending
+        task_table.show_only('pending')
 
         wait
 
@@ -54,7 +54,7 @@ class Main_menu
 
   end
 
-def main_prompt
+def main_prompt_text
   # outputs "main menu" text prompt
   puts "  Main menu \n
         To add new task, press '1' \n
@@ -65,17 +65,28 @@ def main_prompt
         To view list of all pending tasks, press '6' \n
         If you want to quit, press any other key \n"
 
-  user_input = gets.to_i # reads number to compare it to options in case
 end
 
+
+def main_prompt
+
+  main_prompt_text
+  user_input = gets.to_i # reads number to compare it to options in case
+
+end
 
 
 
 # waits for user to enter anything
   def wait
 
-    puts "\n press enter to continue"
     gets
+
+  end
+
+  def wait_text
+
+    puts "\n press enter to continue"
 
   end
 

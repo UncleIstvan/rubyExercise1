@@ -2,62 +2,70 @@ class Tasks
 
   attr_accessor :tasks
 
-
   def initialize options
-    @tasks = options [:tasks] || []
+    @id_counter = 0
+    @tasks = options [:tasks] || {}
   end
 
-# changes task ID properties according to their position in array
-  def serialize
-    @tasks.each { |task| task.id_number = tasks.index(task) + 1 }
-  end
 
-# reads text input and creates new task with that description
-# assigns ID and puts this task at the end of our task array
+# reads text input and creates new task with that description and assigns ID
   def add_task
-    puts 'Enter task description, please'
+
+    new_description_prompt_print
+
+    increment_task_id_counter
+
     new_text = gets.chomp
 
-    new_task = Task.new ({
-
-                            id_number: @tasks.size+1,
-                            text: new_text,
-
-                        })
-    @tasks << new_task
+    @tasks[@id_counter] = create_task(new_text)
 
   end
 
-# reads number input and tries to limit it to our task array range
-# if there's a task with that index in our array, it changes "completed" property to true
+# reads input and tries to find a task with that id to change its status
   def mark_completed
     puts 'Enter task number(ID), please'
 
-    task_index = gets.to_i - 1
+     entered_id = get_id_input
 
-    if task_index >= 0 && task_index <= @tasks.size
+     if @tasks[entered_id]
 
-      @tasks[task_index].completed = true
-    end
+      @tasks[entered_id].status = 'completed'
+
+     else
+
+       no_entry_message
+
+     end
+
   end
 
 
-# reads number input and tries to limit it to our task array range
-# if there's a task with that index in our array, it deletes this task,
-#  and changes IDs of other tasks according to our array structure
+# reads input and tries to find a task with that id to delete it
   def delete_task
 
     puts 'Enter task number(ID), please'
 
-    task_index = gets.to_i - 1
+    entered_id = get_id_input
 
-    if task_index >= 0 && task_index <= @tasks.size
+    if @tasks[entered_id]
 
-      @tasks.delete_at(task_index)
+      @tasks.delete(entered_id)
 
-      serialize
+    else
+
+      no_entry_message
 
     end
+
+  end
+
+  def create_task(text)
+
+    task = Task.new ({
+
+                            text: text
+
+                        })
 
   end
 
@@ -68,28 +76,38 @@ class Tasks
     table_empty
     else
     table_placeholder
-    @tasks.each { |task| puts "#{task.id_number}  #{task.text}  #{task.status}" }
+    fill_table(@tasks)
     end
   end
 
-  # same as above, but shows only tasks with "COMPLETED" status
-  def show_completed
-    if @tasks.empty?
+  # same as above, but shows only tasks with specific status
+  def show_only(status_query)
+
+    sorted_tasks = @tasks.select{|task_id, task| task.status == status_query}
+
+    if sorted_tasks.empty?
       table_empty
     else
     table_placeholder
-    @tasks.each { |task| puts "#{task.id_number}  #{task.text}  #{task.status}" if task.completed }
+    fill_table(sorted_tasks)
     end
   end
 
-  # same as above, but shows only tasks with "PENDING" status
-  def show_pending
-    if  @tasks.empty?
-      table_empty
-    else
-    table_placeholder
-    @tasks.each { |task| puts "#{task.id_number}  #{task.text}  #{task.status}" unless task.completed }
-    end
+
+  def get_id_input
+
+    task_id = gets.to_i
+
+  end
+
+  def fill_table (hash)
+   hash.each { |task_id, task| puts "#{task_id}  #{task.text}  #{task.status}" }
+  end
+
+  def new_description_prompt_print
+
+    puts 'Enter task description, please'
+
   end
 
   def table_placeholder
@@ -103,4 +121,13 @@ class Tasks
     puts 'Nothing to show yet'
 
   end
+
+  def increment_task_id_counter
+    @id_counter += 1
+  end
+
+  def no_entry_message
+    puts 'no task with this id found'
+  end
+
 end
